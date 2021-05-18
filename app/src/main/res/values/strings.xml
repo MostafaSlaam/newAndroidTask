@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">androidTask</string>
+    <string name="please_wait">Please wait</string>
+    <string name="cancel">cancel</string>
+    <string name="ok">ok</string>
+    <string name="main">Main</string>
+    <string name="error">error</string>
+    <string name="try_again">Try again</string>
+    <string name="word_name">Word: %s</string>
+    <string name="count">Count: %s</string>
+</resources>

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <import type="android.view.View" />
+        <variable
+            name="viewModel"
+            type="android.task.view.activity.mainActivity.MainActivityViewModel" />
+    </data>
+
+
+    <RelativeLayout
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        tools:context=".view.activity.mainActivity.MainActivity">
+
+        <include
+            android:id="@+id/layoutLoader"
+            layout="@layout/layout_loader_"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="@{!viewModel.isShowError() &amp;&amp; viewModel.isShowLoader()?View.VISIBLE : View.GONE}" />
+        <LinearLayout
+            android:id="@+id/layout_errorCase"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:visibility="@{!viewModel.isShowLoader() &amp;&amp; viewModel.isShowError()?View.VISIBLE : View.GONE}"
+            android:background="@color/white"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/ivError"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:src="@drawable/router"
+                android:adjustViewBounds="true"
+                />
+
+            <TextView
+                android:id="@+id/tvErrorTitle_connection"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginStart="@dimen/padding_40"
+                android:layout_marginTop="@dimen/padding_30"
+                android:layout_marginEnd="@dimen/padding_40"
+                android:gravity="center"
+                android:visibility="gone"
+                android:includeFontPadding="false"
+                android:text="@string/error"
+                android:textColor="@color/taupe"
+                android:textSize="@dimen/font_size_20" />
+
+            <TextView
+                android:id="@+id/tvErrorBody_connection"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginStart="@dimen/padding_40"
+                android:layout_marginTop="@dimen/padding_30"
+                android:layout_marginEnd="@dimen/padding_40"
+                android:gravity="center"
+                android:text="@{viewModel.connectionErrorMessage}"
+                android:lineSpacingExtra="@dimen/padding_10"
+                android:includeFontPadding="false"
+                android:textColor="@color/taupe"
+                android:textSize="@dimen/font_size_15" />
+
+            <TextView
+                android:id="@+id/tvRetry"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginStart="@dimen/padding_15"
+                android:layout_marginTop="@dimen/padding_20"
+                android:layout_marginBottom="@dimen/padding_20"
+                android:layout_marginEnd="@dimen/padding_15"
+                android:background="@drawable/round8_corner_color_primary_selector"
+                android:drawablePadding="@dimen/padding_10"
+                android:gravity="center"
+                android:onClick="@{()->viewModel.startFunc()}"
+                android:includeFontPadding="false"
+                android:padding="@dimen/padding_10"
+                android:text="@string/try_again"
+                android:textAllCaps="true"
+                android:textColor="@color/white"
+                android:textSize="@dimen/font_size_15"
+                android:textStyle="normal" />
+
+        </LinearLayout>
+        <androidx.recyclerview.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:visibility="@{!viewModel.isShowError() &amp;&amp; !viewModel.isShowLoader()?View.VISIBLE : View.GONE}"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            adapter="@{viewModel.adapter}"
+            />
+
+    </RelativeLayout>
+</layout>
