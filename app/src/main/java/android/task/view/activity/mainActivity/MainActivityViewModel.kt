@@ -15,6 +15,7 @@ import android.task.observer.showHtml
 import android.task.util.Preferences
 import android.task.util.WebAppInterface
 import android.task.view.activity.baseActivity.BaseActivityViewModel
+import android.util.Log
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -22,10 +23,10 @@ import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.shababit.observer.OnRecyclerItemClickListener
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import org.jsoup.Jsoup
 import org.w3c.dom.Document
+import java.lang.Runnable
 
 
 open class MainActivityViewModel(
@@ -35,9 +36,11 @@ open class MainActivityViewModel(
     var isShowLoader = MutableLiveData<Boolean>()
     var isShowError = MutableLiveData<Boolean>()
     var connectionErrorMessage = MutableLiveData<String>()
-    var arrayList = ArrayList<WordModel>()
+
+    //    var arrayList = ArrayList<WordModel>()
     var adapter: RecyclerWordsAdapter
     lateinit var webView: WebView
+    var cout = 0
 
     init {
 
@@ -60,9 +63,7 @@ open class MainActivityViewModel(
         webView.clearCache(true)
         webView.addJavascriptInterface(WebAppInterface(object : showHtml {
             override fun showHtml(html: String) {
-                Handler(Looper.getMainLooper()).postDelayed({
-                    setData(html)
-                }, 10000)
+                scope.launch(Dispatchers.IO) { setData(html) }
 
             }
         }), "Android")
@@ -82,45 +83,41 @@ open class MainActivityViewModel(
                 description: String,
                 failingUrl: String
             ) {
-                var html =Preferences.getHtmlData()
+                var html = Preferences.getHtmlData()
                 if (html.isEmpty()) {
                     connectionErrorMessage.value = description
                     isShowLoader.value = false
                     isShowError.value = true
-                }
-                else
-                    setData(html)
+                } else
+                    scope.launch(Dispatchers.IO) { setData(html) }
+
             }
         })
         webView.loadUrl("https://www.alalmiyalhura.com")
-//        webView.loadUrl("https://www.filgoal.com")
     }
 
-    fun setData(html:String){
-        isShowLoader.value = true
+   suspend fun setData(html: String) {
+        isShowLoader.postValue(true)
         Preferences.saveHtmlData(html)
-        prepareListWords(html)
-        adapter.setList(arrayList)
-        isShowLoader.value = false
+        Handler(Looper.getMainLooper()).post(
+            Runnable {
+                adapter.setList(prepareListWords(html))
+            })
+
+        isShowLoader.postValue(false)
+//        return true
     }
 
-    fun prepareListWords(html: String) {
+    fun prepareListWords(html: String): ArrayList<WordModel> {
 
-        arrayList.clear()
-        var doc: org.jsoup.nodes.Document? = Jsoup.parse(html)
-        var regex=Regex("[^a-zA-Zء-ي0-9]")
-//
-        var text = doc!!.text().replace(regex," ")
-//        {
-//            it.isLetterOrDigit() || it.isWhitespace()
-//        }
+        var arrayList = ArrayList<WordModel>()
+        val doc: org.jsoup.nodes.Document? = Jsoup.parse(html)
+        val regex = Regex("[^a-zA-Zء-ي0-9]")
+        var text = doc!!.text().replace(regex, " ")
         var wordList = text.split(" ")
         for (word in wordList) {
-//            var oldCount = words.get(word)
-//            if (oldCount == null)
-//                oldCount = 0
-//            words.put(word, oldCount + 1)
-            var index = getWordIndex(word)
+
+            var index = getWordIndex(arrayList, word)
             if (index == -1) {
                 if (word.isNotEmpty())
                     arrayList.add(WordModel(word, "1"))
@@ -129,9 +126,10 @@ open class MainActivityViewModel(
                     ((arrayList.get(index).count).toInt() + 1).toString()
         }
 
+        return arrayList
     }
 
-    fun getWordIndex(word: String): Int {
+    fun getWordIndex(arrayList: ArrayList<WordModel>, word: String): Int {
         for (index in arrayList.indices)
             if (arrayList[index].word.compareTo(word) == 0)
                 return index

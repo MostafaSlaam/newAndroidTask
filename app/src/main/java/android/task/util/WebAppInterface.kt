@@ -9,11 +9,5 @@ class WebAppInterface(var showHtmlObserver: showHtml) {
     @JavascriptInterface
     fun showHtml(toast: String) {
         showHtmlObserver.showHtml(toast)
-//                Toast.makeText(mContext, toast, Toast.LENGTH_SHORT).show()
-//            binding.tvTextView.post {
-//                val doc: org.jsoup.nodes.Document? = Jsoup.parse(toast)
-//
-//                binding.tvTextView.text=doc!!.text()
-//            }
     }
 }

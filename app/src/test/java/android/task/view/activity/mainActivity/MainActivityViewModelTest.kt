@@ -3,6 +3,8 @@ package android.task.view.activity.mainActivity
 import android.app.Application
 import android.task.MyApplication
 import android.task.model.WordModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.junit.Assert.*
 import org.junit.Test
 
@@ -14,9 +16,8 @@ class MainActivityViewModelTest{
     {
         val items=ArrayList<WordModel>()
         items.add(WordModel("test","5"))
-        viewModel.arrayList=items
-        val result1=viewModel.getWordIndex("test")
-        val result2=viewModel.getWordIndex("mostafa")
+        val result1=viewModel.getWordIndex(items,"test")
+        val result2=viewModel.getWordIndex(items,"mostafa")
         assertEquals(0,result1)
         assertEquals(-1,result2)
     }
@@ -169,7 +170,8 @@ class MainActivityViewModelTest{
                 "</body>\n" +
                 "\n" +
                 "</html>"
-        viewModel.prepareListWords(html)
-        assertEquals(5,viewModel.arrayList.size)
+
+
+        assertEquals(5, viewModel.prepareListWords(html).size)
     }
 }
